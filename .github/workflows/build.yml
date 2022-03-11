@@ -15,8 +15,8 @@ jobs:
 
       - name: Install packages
         run: |
-          apt-get update
-          apt-get install -y make wget xz-utils proot qemu-user-static squashfs-tools
+          sudo apt-get update
+          sudo apt-get install -y make wget xz-utils proot qemu-user-static squashfs-tools
 
       - name: Build minimal Ubuntu cloud image for ARM
         run: |
