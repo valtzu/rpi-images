@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install packages
+        run: |
+          apt-get update
+          apt-get install -y make wget xz-utils proot qemu-user-static squashfs-tools
+
+      - name: Build minimal Ubuntu cloud image for ARM
+        run: |
+          make focal-minimal-cloudimg-arm64.squashfs
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+
+      - name: Upload focal-minimal-cloudimg-arm64-root.squashfs
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: focal-minimal-cloudimg-arm64.squashfs
+          asset_path: focal-minimal-cloudimg-arm64.squashfs
+          asset_content_type: application/octet-stream
