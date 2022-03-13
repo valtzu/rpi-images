@@ -9,7 +9,9 @@ apt-get update
 rm -f /etc/kernel/postinst.d/initramfs-tools /etc/kernel/postinst.d/zz-flash-kernel /etc/initramfs/post-update.d/flash-kernel
 
 # Make sure required tools are there (may be installed already)
-apt-get install -y --no-install-recommends initramfs-tools cloud-initramfs-rooturl
+apt-get install -y --no-install-recommends initramfs-tools cloud-initramfs-rooturl busybox-initramfs
+
+sed 's/"$CASPER_GENERATE_UUID"/"always-enable-openssl"/' -i /usr/share/initramfs-tools/hooks/zz-busybox-initramfs
 
 # We have no disk here so..
 truncate --size=0 /etc/fstab
