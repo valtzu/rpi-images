@@ -8,19 +8,21 @@ You can download the latest Ubuntu 20.04 SquashFS image built from this repo [he
 
 ## Build
 
-### Dependencies
 ```
 apt-get install -y make wget xz-utils proot qemu-user-static squashfs-tools tar
+make
 ```
 
-### Focal Fossa
-_Only this image is currently built in the pipeline._
-```
-make focal-minimal-cloudimg-arm64.squashfs
-```
+## Example usage
 
-### Jammy Jellyfish
-_Note: this did not seem to work 100%, ubuntu-minimal.sh probably needs some adjustments._
+### iPXE
+
 ```
-make jammy-minimal-cloudimg-arm64.squashfs
+#!ipxe
+dhcp
+set root-url http://github.com/valtzu/rpi-images/releases/latest/download/
+set cloud-init https://raw.githubusercontent.com/valtzu/pipxe/master/example/cloud-init/
+initrd ${root-url}/initrd.img
+chain ${root-url}/vmlinuz initrd=initrd.img root=${root-url}/focal-minimal-cloudimg-arm64.tar.xz ip=dhcp overlayroot=tmpfs:recurse=0 network-config=disabled ds=nocloud-net;s=${cloud-init}
+boot
 ```
