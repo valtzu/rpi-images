@@ -18,9 +18,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y make wget xz-utils proot qemu-user-static squashfs-tools
 
-      - name: Build minimal Ubuntu cloud image for ARM
+      - name: Build
         run: |
-          make focal-minimal-cloudimg-arm64.squashfs
+          make -j4
 
       - name: Create release
         id: create_release
@@ -38,5 +38,35 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_name: focal-minimal-cloudimg-arm64.squashfs
-          asset_path: focal-minimal-cloudimg-arm64.squashfs
+          asset_path: dist/focal/minimal.squashfs
+          asset_content_type: application/octet-stream
+
+      - name: Upload focal-minimal-cloudimg-arm64-root.tar.xz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: focal-minimal-cloudimg-arm64.tar.xz
+          asset_path: dist/focal/minimal.tar.xz
+          asset_content_type: application/octet-stream
+
+      - name: Upload kernel
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: vmlinuz
+          asset_path: dist/focal/vmlinuz
+          asset_content_type: application/octet-stream
+
+      - name: Upload initramfs
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: initrd.img
+          asset_path: dist/focal/initrd.img
           asset_content_type: application/octet-stream

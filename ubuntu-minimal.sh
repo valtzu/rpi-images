@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
