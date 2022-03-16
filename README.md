@@ -20,6 +20,7 @@ make
 ```
 #!ipxe
 dhcp
+ntp pool.ntp.org
 set root-url http://github.com/valtzu/rpi-images/releases/latest/download/
 set cloud-init https://raw.githubusercontent.com/valtzu/pipxe/master/example/cloud-init/
 initrd ${root-url}/initrd.img
