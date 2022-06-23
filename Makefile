@@ -46,7 +46,7 @@ $(WORKDIR)/%-server-cloudimg-arm64-root: upstream/$$*-server-cloudimg-arm64-root
 	[ -d $@ ] || sudo mkdir -p $@
 	sudo tar xf $< -C $@
 
-all: dist/focal/minimal.squashfs dist/focal/minimal.tar.xz dist/focal/vmlinuz dist/focal/initrd.img dist/jammy/minimal.squashfs dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/initrd.img
+all: dist/focal/minimal.tar.xz dist/focal/vmlinuz dist/focal/initrd.img dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/initrd.img
 
 clean:
 	sudo rm -rf upstream/ dist/ $(WORKDIR)
