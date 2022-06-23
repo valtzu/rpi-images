@@ -41,6 +41,16 @@ jobs:
           asset_path: dist/focal/minimal.tar.xz
           asset_content_type: application/octet-stream
 
+      - name: Upload jammy-minimal-cloudimg-arm64-root.tar.xz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: jammy-minimal-cloudimg-arm64.tar.xz
+          asset_path: dist/jammy/minimal.tar.xz
+          asset_content_type: application/octet-stream
+
       - name: Upload k3s-arm64-1.24.tar.xz
         uses: actions/upload-release-asset@v1
         env:
@@ -58,7 +68,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_name: vmlinuz
-          asset_path: dist/focal/vmlinuz
+          asset_path: dist/jammy/vmlinuz
           asset_content_type: application/octet-stream
 
       - name: Upload initramfs
@@ -68,5 +78,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_name: initrd.img
-          asset_path: dist/focal/initrd.img
+          asset_path: dist/jammy/initrd.img
           asset_content_type: application/octet-stream
