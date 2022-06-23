@@ -44,7 +44,7 @@ dist/k3s-arm64-%.tar.xz: upstream/k3s-arm64-$$*
 
 upstream/k3s-arm64-1.24:
 	[ -d upstream ] || mkdir -p upstream
-	wget -q https://github.com/k3s-io/k3s/releases/download/v1.24.1%2Bk3s1/k3s-arm64 -O $@
+	wget -q 'https://github.com/k3s-io/k3s/releases/download/v1.24.1%2Bk3s1/k3s-arm64' -O $@
 
 upstream/%-server-cloudimg-arm64-root.tar.xz:
 	[ -d upstream ] || mkdir -p upstream
