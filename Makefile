@@ -35,8 +35,8 @@ dist/%/minimal.tar.xz: $(WORKDIR)/$$*-minimal-cloudimg-arm64
 	chmod 0644 $@
 
 dist/k3s-arm64-%.tar.xz: upstream/k3s-arm64-$$*
-	[ -d $* ] || mkdir -p $$(dirname $@)
-	tar --transform 's,^,usr/local/bin/,S' -cJf $@ -C $$(dirname $<) $$(basename $<)
+	[ -d dist ] || mkdir -p dist
+	tar --transform 's,^,./usr/local/bin/,S' -cJf $@ -C $$(dirname $<) $$(basename $<)
 
 upstream/k3s-arm64-1.24:
 	[ -d upstream ] || mkdir -p upstream
