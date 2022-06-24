@@ -36,11 +36,12 @@ dist/%/minimal.tar.xz: $(WORKDIR)/$$*-minimal-cloudimg-arm64
 
 dist/k3s-arm64-%.tar.xz: upstream/k3s-arm64-$$*
 	[ -d $* ] || mkdir -p $$(dirname $@)
-	tar --transform 's,^,/usr/local/bin/,S' -cJf $@ -C $$(dirname $<) $$(basename $<)
+	tar --transform 's,^,usr/local/bin/,S' -cJf $@ -C $$(dirname $<) $$(basename $<)
 
 upstream/k3s-arm64-1.24:
 	[ -d upstream ] || mkdir -p upstream
 	wget -q 'https://github.com/k3s-io/k3s/releases/download/v1.24.1%2Bk3s1/k3s-arm64' -O $@
+	chmod 0755 $@
 
 upstream/%-server-cloudimg-arm64-root.tar.xz:
 	[ -d upstream ] || mkdir -p upstream
