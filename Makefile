@@ -3,6 +3,8 @@ WORKDIR := /tmp/rpi-images
 .SECONDEXPANSION:
 .PRECIOUS: upstream/%-server-cloudimg-arm64-root.tar.xz $(WORKDIR)/%-minimal-cloudimg-arm64 $(WORKDIR)/%-server-cloudimg-arm64-root $(WORKDIR)/%-kernel-cloudimg-arm64
 
+all: dist/focal/minimal.tar.xz dist/focal/vmlinuz dist/focal/initrd.img dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/initrd.img dist/k3s-arm64-1.24.tar.xz
+
 $(WORKDIR)/%-minimal-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root
 	sudo rm -rf $@
 	sudo cp -ax $< $@
@@ -23,12 +25,6 @@ dist/%/initrd.img: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $* ] || mkdir -p $$(dirname $@)
 	sudo proot -b /etc/resolv.conf:/etc/resolv.conf! -S $< -q qemu-aarch64-static -w / update-initramfs -c -k $(shell readlink $</boot/vmlinuz|sed 's/^vmlinuz-//')
 	sudo cp -aL $</boot/initrd.img $@
-	sudo chown --reference=$$(dirname $@) $@
-	chmod 0644 $@
-
-dist/%/minimal.squashfs: $(WORKDIR)/$$*-minimal-cloudimg-arm64
-	[ -d $* ] || mkdir -p $$(dirname $@)
-	sudo mksquashfs $< $@ -comp xz
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
@@ -53,8 +49,6 @@ upstream/%-server-cloudimg-arm64-root.tar.xz:
 $(WORKDIR)/%-server-cloudimg-arm64-root: upstream/$$*-server-cloudimg-arm64-root.tar.xz
 	[ -d $@ ] || sudo mkdir -p $@
 	sudo tar xf $< -C $@
-
-all: dist/focal/minimal.tar.xz dist/focal/vmlinuz dist/focal/initrd.img dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/initrd.img
 
 clean:
 	sudo rm -rf upstream/ dist/ $(WORKDIR)
