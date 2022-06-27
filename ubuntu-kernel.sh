@@ -16,6 +16,12 @@ sed 's/"$CASPER_GENERATE_UUID"/"always-enable-openssl"/' -i /usr/share/initramfs
 # We have no disk here so..
 truncate --size=0 /etc/fstab
 
+cat <<EOT >> /etc/initramfs-tools/modules
+nf_conntrack
+br_netfilter
+iptable_nat
+EOT
+
 # Reduce initramfs size by uninstalling unneeded stuff
 apt-get purge -y cloud-initramfs-dyn-netconf cryptsetup-initramfs
 
