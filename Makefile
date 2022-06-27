@@ -34,9 +34,13 @@ dist/%/minimal.tar.xz: $(WORKDIR)/$$*-minimal-cloudimg-arm64
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
-dist/k3s-arm64-%.tar.xz: upstream/k3s-arm64-$$*
+dist/k3s-arm64-%.tar: upstream/k3s-arm64-$$* $(WORKDIR)/jammy-kernel-cloudimg-arm64
 	[ -d dist ] || mkdir -p dist
-	tar --transform 's,^k3s-.*,./usr/local/bin/k3s,' -cpJf $@ -C $$(dirname $<) $$(basename $<)
+	tar --transform 's,^k3s-.*,./usr/local/bin/k3s,' -cpf $@ -C $$(dirname $<) $$(basename $<)
+	tar -rpf $@ -C $(word 2,$^) $(subst $(word 2,$^),.,$(wildcard $(word 2,$^)/lib/modules/*/kernel/net/ipv4))
+
+dist/k3s-arm64-%.tar.xz: dist/k3s-arm64-%.tar
+	xz -k $<
 
 upstream/k3s-arm64-1.24:
 	[ -d upstream ] || mkdir -p upstream
