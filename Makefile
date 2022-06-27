@@ -39,7 +39,7 @@ dist/k3s-arm64-%.tar: upstream/k3s-arm64-$$* $(WORKDIR)/jammy-kernel-cloudimg-ar
 	tar --transform 's,^k3s-.*,./usr/local/bin/k3s,' -cpf $@ -C $$(dirname $<) $$(basename $<)
 
 dist/k3s-arm64-%.tar.xz: dist/k3s-arm64-%.tar
-	xz -k $<
+	[ -f $@ ] || xz -k $<
 
 upstream/k3s-arm64-1.24:
 	[ -d upstream ] || mkdir -p upstream
