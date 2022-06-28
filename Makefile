@@ -5,7 +5,7 @@ SHELL = /bin/bash
 .SECONDEXPANSION:
 .PRECIOUS: upstream/%-server-cloudimg-arm64-root.tar.xz $(WORKDIR)/%-minimal-cloudimg-arm64 $(WORKDIR)/%-server-cloudimg-arm64-root $(WORKDIR)/%-kernel-cloudimg-arm64
 
-all: dist/focal/minimal.tar.xz dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
+all: dist/focal/minimal.tar.xz dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
 
 $(WORKDIR)/%-minimal-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root
 	sudo rm -rf $@
@@ -27,6 +27,12 @@ dist/%/config: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
 	cp -a $(wildcard $</boot/config-*) $@
 	sudo chown --reference=$$(dirname $@) $@
+
+dist/%/kernel-modules.tar.xz: $(WORKDIR)/$$*-kernel-cloudimg-arm64
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
+	tar -C $< -cpJf $@ ./lib/modules
+	sudo chown --reference=$$(dirname $@) $@
+	chmod 0644 $@
 
 dist/%/initrd.img: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)

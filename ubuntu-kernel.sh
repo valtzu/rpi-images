@@ -20,6 +20,18 @@ truncate --size=0 /etc/fstab
 apt-get purge -y cloud-initramfs-dyn-netconf cryptsetup-initramfs
 
 # Install kernel (excluding recommended tools like flash-kernel)
-apt-get install -y --no-install-recommends linux-generic-hwe-22.04-edge
+apt-get install -y --no-install-recommends linux-raspi
 
-find /lib/modules/*/kernel/ -name '*.ko' ! -wholename '*driver*' ! -wholename '*sound*' -exec basename -s .ko {} \; > /etc/initramfs-tools/modules
+cd /lib/modules
+rm -rf ./*/kernel/sound/*
+rm -rf ./*/kernel/drivers/gpu/*
+rm -rf ./*/kernel/drivers/infiniband/*
+rm -rf ./*/kernel/drivers/isdn/*
+rm -rf ./*/kernel/drivers/media/*
+rm -rf ./*/kernel/drivers/staging/lustre/*
+rm -rf ./*/kernel/drivers/staging/comedi/*
+rm -rf ./*/kernel/fs/ocfs2/*
+rm -rf ./*/kernel/net/bluetooth/*
+rm -rf ./*/kernel/net/mac80211/*
+rm -rf ./*/kernel/net/wireless/*
+cd -
