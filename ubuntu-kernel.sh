@@ -20,7 +20,7 @@ truncate --size=0 /etc/fstab
 apt-get purge -y cloud-initramfs-dyn-netconf cryptsetup-initramfs
 
 # Install kernel (excluding recommended tools like flash-kernel)
-apt-get install -y --no-install-recommends linux-raspi
+apt-get install -y --no-install-recommends linux-generic-hwe-22.04-edge
 
 cd /lib/modules
 rm -rf ./*/kernel/sound/*
