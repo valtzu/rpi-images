@@ -31,16 +31,6 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
 
-      - name: Upload focal-minimal-cloudimg-arm64-root.tar.xz
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_name: focal-minimal-cloudimg-arm64.tar.xz
-          asset_path: dist/focal/minimal.tar.xz
-          asset_content_type: application/octet-stream
-
       - name: Upload jammy-minimal-cloudimg-arm64-root.tar.xz
         uses: actions/upload-release-asset@v1
         env:

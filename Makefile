@@ -5,7 +5,7 @@ SHELL = /bin/bash
 .SECONDEXPANSION:
 .PRECIOUS: upstream/%-server-cloudimg-arm64-root.tar.xz $(WORKDIR)/%-minimal-cloudimg-arm64 $(WORKDIR)/%-server-cloudimg-arm64-root $(WORKDIR)/%-kernel-cloudimg-arm64
 
-all: dist/focal/minimal.tar.xz dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
+all: dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
 
 $(WORKDIR)/%-minimal-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root
 	sudo rm -rf $@
