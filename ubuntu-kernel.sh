@@ -16,35 +16,10 @@ sed 's/"$CASPER_GENERATE_UUID"/"always-enable-openssl"/' -i /usr/share/initramfs
 # We have no disk here so..
 truncate --size=0 /etc/fstab
 
-cat <<EOT >> /etc/initramfs-tools/modules
-br_netfilter
-iptable_nat
-ip_set
-bridge
-libcrc32c
-llc
-nf_conntrack
-nf_defrag_ipv4
-nf_nat
-nfnetlink
-nf_tables
-nft_chain_nat
-nft_compat
-nft_counter
-stp
-veth
-xt_addrtype
-xt_comment
-xt_conntrack
-xt_mark
-xt_MASQUERADE
-xt_multiport
-xt_nat
-xt_tcpudp
-EOT
-
 # Reduce initramfs size by uninstalling unneeded stuff
 apt-get purge -y cloud-initramfs-dyn-netconf cryptsetup-initramfs
 
 # Install kernel (excluding recommended tools like flash-kernel)
 apt-get install -y --no-install-recommends linux-generic-hwe-22.04-edge
+
+find /lib/modules/*/kernel/ -name '*.ko' ! -wholename '*driver*' ! -wholename '*sound*' -exec basename -s .ko {} \; > /etc/initramfs-tools/modules

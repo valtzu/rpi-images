@@ -1,9 +1,11 @@
 WORKDIR := /tmp/rpi-images
 
+SHELL = /bin/bash
+
 .SECONDEXPANSION:
 .PRECIOUS: upstream/%-server-cloudimg-arm64-root.tar.xz $(WORKDIR)/%-minimal-cloudimg-arm64 $(WORKDIR)/%-server-cloudimg-arm64-root $(WORKDIR)/%-kernel-cloudimg-arm64
 
-all: dist/focal/minimal.tar.xz dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/initrd.img dist/k3s-arm64-1.24.tar.xz
+all: dist/focal/minimal.tar.xz dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
 
 $(WORKDIR)/%-minimal-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root
 	sudo rm -rf $@
@@ -16,20 +18,25 @@ $(WORKDIR)/%-kernel-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root
 	sudo proot -b /etc/resolv.conf:/etc/resolv.conf! -b ./ubuntu-kernel.sh:/ubuntu-kernel.sh -S $@ -q qemu-aarch64-static -w / /ubuntu-kernel.sh
 
 dist/%/vmlinuz: $(WORKDIR)/$$*-kernel-cloudimg-arm64
-	[ -d $* ] || mkdir -p $$(dirname $@)
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
 	sudo cp -aL $</boot/vmlinuz $@
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
+dist/%/config: $(WORKDIR)/$$*-kernel-cloudimg-arm64
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
+	cp -a $(wildcard $</boot/config-*) $@
+	sudo chown --reference=$$(dirname $@) $@
+
 dist/%/initrd.img: $(WORKDIR)/$$*-kernel-cloudimg-arm64
-	[ -d $* ] || mkdir -p $$(dirname $@)
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
 	sudo proot -b /etc/resolv.conf:/etc/resolv.conf! -S $< -q qemu-aarch64-static -w / update-initramfs -c -k $(shell readlink $</boot/vmlinuz|sed 's/^vmlinuz-//')
 	sudo cp -aL $</boot/initrd.img $@
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
 dist/%/minimal.tar.xz: $(WORKDIR)/$$*-minimal-cloudimg-arm64
-	[ -d $* ] || mkdir -p $$(dirname $@)
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
 	sudo tar -cJf $@ -C $< .
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@

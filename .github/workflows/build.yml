@@ -61,6 +61,16 @@ jobs:
           asset_path: dist/k3s-arm64-1.24.tar.xz
           asset_content_type: application/octet-stream
 
+      - name: Upload kernel config
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: kernel-config
+          asset_path: dist/jammy/config
+          asset_content_type: application/octet-stream
+
       - name: Upload kernel
         uses: actions/upload-release-asset@v1
         env:
