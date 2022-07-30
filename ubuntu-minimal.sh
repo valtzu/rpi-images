@@ -17,3 +17,4 @@ apt-get upgrade -y
 apt-get autoremove -y
 find /var/log -type f -delete
 rm -rf /var/cache/*
+rm /etc/hostname
