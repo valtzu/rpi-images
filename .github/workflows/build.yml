@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -16,7 +16,7 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y make wget xz-utils qemu-user-static squashfs-tools
+          sudo apt-get install -y make wget xz-utils qemu-user-static
 
       - name: Build
         run: |
