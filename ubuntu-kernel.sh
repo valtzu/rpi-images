@@ -7,7 +7,7 @@ export INITRD=No
 apt-get update
 
 # Make sure required tools are there (may be installed already)
-apt-get install -y --no-install-recommends initramfs-tools cloud-initramfs-rooturl cloud-initramfs-copymods busybox-initramfs linux-raspi
+apt-get install -y --no-install-recommends initramfs-tools cloud-initramfs-rooturl cloud-initramfs-copymods busybox-initramfs linux-raspi xtables-addons-dkms
 
 sed 's/"$CASPER_GENERATE_UUID"/"always-enable-openssl"/' -i /usr/share/initramfs-tools/hooks/zz-busybox-initramfs
 

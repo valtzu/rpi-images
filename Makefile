@@ -36,6 +36,7 @@ dist/%/kernel-modules.tar.xz: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 
 dist/%/initrd.img: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
+	sudo cp -rf initramfs-tools $</etc/
 	sudo proot -b /etc/resolv.conf:/etc/resolv.conf! -S $< -q qemu-aarch64-static -w / mkinitramfs -v -o /boot/initrd.img $(shell readlink $</boot/vmlinuz|sed 's/^vmlinuz-//')
 	sudo cp -aL $</boot/initrd.img $@
 	sudo chown --reference=$$(dirname $@) $@

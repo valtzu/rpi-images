@@ -1,0 +1,34 @@
+#!/bin/sh
+
+PREREQ="udev network"
+
+prereqs() {
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+    ;;
+esac
+
+[ -x /sbin/iptables ] || exit 0
+[ -x /sbin/modprobe ] || exit 0
+
+main() {
+    log_begin_msg "Creating iptables rules for sysrq over udp"
+
+    DEFAULT_NIC=$(find $(ls -ld /sys/class/net/* | grep -vi virtual | awk '{print $4}') -exec basename {} \;)
+
+    modprobe xt_SYSRQ
+    iptables -F
+    iptables -X
+    iptables -A INPUT -i $DEFAULT_NIC -p udp --dport 9 -j SYSRQ
+
+    log_end_msg
+}
+
+. /scripts/functions
+
+main
