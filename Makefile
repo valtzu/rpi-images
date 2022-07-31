@@ -9,6 +9,7 @@ SHELL = /bin/bash
 all: dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
 
 $(CHROOT_LAYER):
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
 	sudo rm -rf $@
 	sudo cp -af chroot-layer $$(dirname $@)
 	sudo mkdir -p $@/usr/bin

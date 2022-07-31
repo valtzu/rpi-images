@@ -27,7 +27,7 @@ cleanup() {
 trap cleanup EXIT
 
 mount -t overlay overlay -olowerdir=$lower,upperdir=$upper,workdir=$work $merged
-mount --bind -o ro /etc/resolv.conf $merged/etc/resolv.conf
+mount --bind -o ro /etc/resolv.conf $merged/etc/resolv.conf || (ls -la /etc/resolv.conf ${lower/:*}/etc/resolv.conf $merged/etc/resolv.conf ${lower/:*} && false)
 mount --bind /proc $merged/proc
 mount --bind /sys $merged/sys
 mount --bind /dev $merged/dev
