@@ -20,7 +20,7 @@ jobs:
 
       - name: Build
         run: |
-          make -j4
+          make WORKDIR=$HOME/workdir -j4
 
       - name: Create release
         id: create_release
