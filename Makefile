@@ -1,4 +1,5 @@
 WORKDIR := /tmp/rpi-images
+CHROOT_LAYER := $(WORKDIR)/chroot-layer
 
 SHELL = /bin/bash
 
@@ -7,15 +8,25 @@ SHELL = /bin/bash
 
 all: dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
 
-$(WORKDIR)/%-minimal-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root
+$(CHROOT_LAYER):
 	sudo rm -rf $@
-	sudo cp -ax $< $@
-	sudo proot -b /etc/resolv.conf:/etc/resolv.conf! -b ./ubuntu-minimal.sh:/ubuntu-minimal.sh -S $@ -q qemu-aarch64-static -w / /ubuntu-minimal.sh
+	sudo cp -af chroot-layer $$(dirname $@)
+	sudo mkdir -p $@/usr/bin
+	sudo cp -af /usr/bin/qemu-aarch64-static $@/usr/bin/
+	sudo chown -R 0:0 $@
 
-$(WORKDIR)/%-kernel-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root
+$(WORKDIR)/%-minimal-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root $(CHROOT_LAYER)
 	sudo rm -rf $@
-	sudo cp -ax $< $@
-	sudo proot -b /etc/resolv.conf:/etc/resolv.conf! -b ./ubuntu-kernel.sh:/ubuntu-kernel.sh -S $@ -q qemu-aarch64-static -w / /ubuntu-kernel.sh
+	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@-layer $@-merged bash -l < ./ubuntu-minimal.sh
+	sudo mount -t overlay overlay -olowerdir=$@-layer:$< $@-merged
+	sudo cp -ax $@-merged $@-merged.full
+	sudo umount $@-merged
+	sudo rm -rf $@-layer
+	sudo mv $@-merged.full $@
+
+$(WORKDIR)/%-kernel-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root $(CHROOT_LAYER)
+	sudo rm -rf $@
+	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@ $@-merged bash -l < ./ubuntu-kernel.sh
 
 dist/%/vmlinuz: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
@@ -30,15 +41,14 @@ dist/%/config: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 
 dist/%/kernel-modules.tar.xz: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
-	tar -C $< -cpJf $@ ./lib/modules
+	tar -C $< -cpJf $@ ./usr/lib/modules
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
-dist/%/initrd.img: $(WORKDIR)/$$*-kernel-cloudimg-arm64
+dist/%/initrd.img: $(WORKDIR)/$$*-kernel-cloudimg-arm64 $(CHROOT_LAYER)
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
-	sudo cp -rf initramfs-tools $</etc/
-	sudo proot -b /etc/resolv.conf:/etc/resolv.conf! -S $< -q qemu-aarch64-static -w / mkinitramfs -v -o /boot/initrd.img $(shell readlink $</boot/vmlinuz|sed 's/^vmlinuz-//')
-	sudo cp -aL $</boot/initrd.img $@
+	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$<:$(WORKDIR)/$*-server-cloudimg-arm64-root $<-initrd $<-initrd-merged mkinitramfs -v -o /boot/initrd.img $(shell readlink $</boot/vmlinuz|sed 's/^vmlinuz-//')
+	sudo cp -aL $<-initrd/boot/initrd.img $@
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
@@ -48,7 +58,7 @@ dist/%/minimal.tar.xz: $(WORKDIR)/$$*-minimal-cloudimg-arm64
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
-dist/k3s-arm64-%.tar: upstream/k3s-arm64-$$* $(WORKDIR)/jammy-kernel-cloudimg-arm64
+dist/k3s-arm64-%.tar: upstream/k3s-arm64-$$*
 	[ -d dist ] || mkdir -p dist
 	tar --transform 's,^k3s-.*,./usr/local/bin/k3s,' -cpf $@ -C $$(dirname $<) $$(basename $<)
 
@@ -69,4 +79,4 @@ $(WORKDIR)/%-server-cloudimg-arm64-root: upstream/$$*-server-cloudimg-arm64-root
 	sudo tar xf $< -C $@
 
 clean:
-	sudo rm -rf upstream/ dist/ $(WORKDIR)
+	sudo rm -rf dist/ $(WORKDIR)

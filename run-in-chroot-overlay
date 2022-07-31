@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -ex
+
+lower=$1
+upper=$2
+work=${upper}.tmp
+merged=$3
+dir=$(dirname $(realpath $0))
+
+if [ -z "$lower" ] || [ -z "$upper" ] || [ -z "$merged" ] ; then
+  >&2 echo "Usage: $0 <lower> <upper> <merged>"
+  exit 1
+fi
+
+mkdir -p $work $upper $merged
+
+cleanup() {
+  umount $merged/etc/resolv.conf || true
+  umount $merged/proc || true
+  umount $merged/sys || true
+  umount $merged/dev || true
+  umount $merged || true
+  rm -rf $work
+}
+
+trap cleanup EXIT
+
+mount -t overlay overlay -olowerdir=$lower,upperdir=$upper,workdir=$work $merged
+mount --bind -o ro /etc/resolv.conf $merged/etc/resolv.conf
+mount --bind /proc $merged/proc
+mount --bind /sys $merged/sys
+mount --bind /dev $merged/dev
+
+shift 3
+chroot $merged $@

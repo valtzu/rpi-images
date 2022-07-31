@@ -9,7 +9,7 @@ You can download the latest Ubuntu 20.04 SquashFS image built from this repo [he
 ## Build
 
 ```
-apt-get install -y make wget xz-utils proot qemu-user-static squashfs-tools tar
+apt-get install -y make wget xz-utils qemu-user-static squashfs-tools tar
 make
 ```
 

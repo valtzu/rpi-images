@@ -7,8 +7,5 @@ Vagrant.configure("2") do |config|
   config.vm.provision:shell, inline: <<-SHELL
     apt-get update
     apt-get install -y make wget xz-utils qemu-user-static
-    curl -L https://proot.gitlab.io/proot/bin/proot > /usr/bin/proot
-    chmod +x /usr/bin/proot
-    proot --version
   SHELL
 end

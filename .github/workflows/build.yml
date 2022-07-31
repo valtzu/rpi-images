@@ -16,7 +16,7 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y make wget xz-utils proot qemu-user-static squashfs-tools
+          sudo apt-get install -y make wget xz-utils qemu-user-static squashfs-tools
 
       - name: Build
         run: |

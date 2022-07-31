@@ -2,7 +2,6 @@
 
 set -ex
 
-export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y cron
 apt-get purge -y \
@@ -10,11 +9,11 @@ apt-get purge -y \
   snapd \
   vim \
   vim-runtime \
+  flash-kernel \
   ubuntu-server \
   ubuntu-standard
 apt-get upgrade -y
 
-apt-get autoremove -y
 find /var/log -type f -delete
-rm -rf /var/cache/*
+rm -rf /var/cache/* /var/lib/apt/lists/*
 rm /etc/hostname
