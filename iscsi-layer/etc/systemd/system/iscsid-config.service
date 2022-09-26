@@ -1,0 +1,14 @@
+[Unit]
+Description=Configure iSCSI daemon
+Before=iscsid.service
+#ConditionDirectoryNotEmpty=!/etc/iscsi/nodes
+#ConditionPathExists=!/etc/iscsi/nodes/${ISCSI_TARGET}
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "echo InitiatorName=${ISCSI_INITIATOR} > /etc/iscsi/initiatorname.iscsi"
+ExecStart=/usr/bin/sed -E 's/(node\.startup\\s*=\\s*)manual\\b/\\1automatic/' -i /etc/iscsi/iscsid.conf
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target

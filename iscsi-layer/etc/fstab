@@ -1,0 +1,2 @@
+LABEL=instance-storage /mnt/instance-storage auto defaults,_netdev,x-systemd.requires=/dev/disk/by-label/instance-storage,x-systemd.automount 0 1
+/mnt/instance-storage/containerd /var/lib/rancher/k3s/agent/containerd none x-systemd.requires=/mnt/instance-storage,x-systemd.required-by=k3s.service,bind,x-systemd.automount 0 0

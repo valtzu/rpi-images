@@ -1,2 +1,0 @@
-# Force use of busybox instead of klibc utilities
-BUSYBOX=y

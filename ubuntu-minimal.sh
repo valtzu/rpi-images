@@ -3,11 +3,12 @@
 set -ex
 
 apt-get update
-apt-get install -y cron
+apt-get install -y cron open-iscsi nano
 apt-get purge -y \
   git \
   snapd \
   vim \
+  vim-tiny \
   vim-runtime \
   flash-kernel \
   ubuntu-server \

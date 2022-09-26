@@ -4,7 +4,7 @@ CHROOT_LAYER := $(WORKDIR)/chroot-layer
 SHELL = /bin/bash
 
 .SECONDEXPANSION:
-.PRECIOUS: upstream/%-server-cloudimg-arm64-root.tar.xz $(WORKDIR)/%-minimal-cloudimg-arm64 $(WORKDIR)/%-server-cloudimg-arm64-root $(WORKDIR)/%-kernel-cloudimg-arm64
+.PRECIOUS: upstream/%-server-cloudimg-arm64-root.tar.xz $(WORKDIR)/%-minimal-cloudimg-arm64 $(WORKDIR)/%-server-cloudimg-arm64-root $(WORKDIR)/%-kernel-cloudimg-arm64 $(WORKDIR)/%-k3s-server $(WORKDIR)/%-k3s-agent
 
 all: dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
 
@@ -28,6 +28,16 @@ $(WORKDIR)/%-minimal-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root $
 $(WORKDIR)/%-kernel-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root $(CHROOT_LAYER)
 	sudo rm -rf $@
 	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@ $@-merged bash -l < ./ubuntu-kernel.sh
+
+$(WORKDIR)/%-k3s-server: $(WORKDIR)/$$*-minimal-cloudimg-arm64 $(CHROOT_LAYER)
+	sudo rm -rf $@
+	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@ $@-merged bash -l < ./k3s-server.sh
+	sudo mkdir -p $@/var/lib/rancher/k3s/server
+	sudo cp -a ./k3s/server/manifests $@/var/lib/rancher/k3s/server/
+
+$(WORKDIR)/%-k3s-agent: $(WORKDIR)/$$*-minimal-cloudimg-arm64 $(CHROOT_LAYER)
+	sudo rm -rf $@
+	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@ $@-merged bash -l < ./k3s-agent.sh
 
 dist/%/vmlinuz: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
@@ -59,17 +69,22 @@ dist/%/minimal.tar.xz: $(WORKDIR)/$$*-minimal-cloudimg-arm64
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
 
-dist/k3s-arm64-%.tar: upstream/k3s-arm64-$$*
-	[ -d dist ] || mkdir -p dist
-	tar --transform 's,^k3s-.*,./usr/local/bin/k3s,' -cpf $@ -C $$(dirname $<) $$(basename $<)
+dist/%/k3s-server.tar.xz: $(WORKDIR)/$$*-k3s-server
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
+	sudo tar -cJf $@ -C $< .
+	sudo chown --reference=$$(dirname $@) $@
+	chmod 0644 $@
 
-dist/k3s-arm64-%.tar.xz: dist/k3s-arm64-%.tar
-	[ -f $@ ] || xz -k $<
+dist/%/k3s-agent.tar.xz: $(WORKDIR)/$$*-k3s-agent
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
+	sudo tar -cJf $@ -C $< .
+	sudo chown --reference=$$(dirname $@) $@
+	chmod 0644 $@
 
-upstream/k3s-arm64-1.24:
-	[ -d upstream ] || mkdir -p upstream
-	wget -q 'https://github.com/k3s-io/k3s/releases/download/v1.24.1%2Bk3s1/k3s-arm64' -O $@
-	chmod 0755 $@
+dist/%/iscsi.tar.xz: iscsi-layer
+	sudo tar -cJf $@ -C $< .
+	sudo chown --reference=$$(dirname $@) $@
+	chmod 0644 $@
 
 upstream/%-server-cloudimg-arm64-root.tar.xz:
 	[ -d upstream ] || mkdir -p upstream

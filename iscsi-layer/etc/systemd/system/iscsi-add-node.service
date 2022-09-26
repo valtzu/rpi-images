@@ -1,0 +1,14 @@
+[Unit]
+Description=Add iSCSI node
+After=network-online.target iscsid.service
+Before=iscsi.service
+#ConditionDirectoryNotEmpty=!/etc/iscsi/nodes
+#ConditionPathExists=!/etc/iscsi/nodes/${ISCSI_TARGET}
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/iscsiadm --mode discovery --portal ${ISCSI_SERVER} --type sendtargets
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
