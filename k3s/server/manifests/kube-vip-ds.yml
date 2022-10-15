@@ -44,8 +44,7 @@ spec:
             - { name: vip_renewdeadline, value: "3" }
             - { name: vip_retryperiod, value: "1" }
             - { name: address, value: k3s-control-plane }
-#          image: ghcr.io/kube-vip/kube-vip:v0.5.0
-          image: valtzu/kube-vip:v0.5.0
+          image: ghcr.io/kube-vip/kube-vip:v0.5.5
           imagePullPolicy: Always
           name: kube-vip
           securityContext:
