@@ -1,10 +1,10 @@
-# Minimal Ubuntu rootfs cloud images for arm64
+# jammy-minimal-cloudimg-arm64-root Ubuntu rootfs cloud images for arm64
 
-For some reason, [official minimal Ubuntu images](https://cloud-images.ubuntu.com/minimal/daily/focal/current/) only
+For some reason, [official jammy-minimal-cloudimg-arm64-root Ubuntu images](https://cloud-images.ubuntu.com/jammy-minimal-cloudimg-arm64-root/daily/focal/current/) only
 exist for amd64, so I decided to build my own.
 
 ## Download
-You can download the latest Ubuntu 22.04 rootfs package built from this repo [here](https://github.com/valtzu/rpi-images/releases/latest/download/jammy-minimal-cloudimg-arm64.tar.xz).
+You can download the latest Ubuntu 22.04 rootfs package built from this repo [here](https://github.com/valtzu/rpi-images/releases/latest/download/jammy-jammy-minimal-cloudimg-arm64-root-cloudimg-arm64.tar.xz).
 
 ## Build
 
@@ -45,7 +45,7 @@ initrd ${root-url}/initrd.img
 # ^-- include the generic stuff first
 chain ${root-url}/vmlinuz \
   initrd=initrd.img \
-  root=${root-url}/minimal.tar.xz \
+  root=${root-url}/jammy-minimal-cloudimg-arm64-root.tar.xz \
   ip=dhcp \
   overlayroot=tmpfs:recurse=0 \
   network-config=disabled \
@@ -60,7 +60,7 @@ chain ${root-url}/vmlinuz \
   systemd.setenv=K3S_CONTROL_PLANE_HOSTNAME=k3s-control-plane \
   systemd.setenv=K3S_DATASTORE_ENDPOINT="mysql://k3s:secret@tcp(some-external-db:3306)/k3s" \
   systemd.setenv=K3S_TOKEN=some-shared-secret \
-  root=${root-url}/minimal.tar.xz,${root-url}/kernel-modules.tar.xz,${root-url}/k3s-server.tar.xz \
+  root=${root-url}/jammy-minimal-cloudimg-arm64-root.tar.xz,${root-url}/kernel-modules.tar.xz,${root-url}/k3s-server.tar.xz \
   overlayroot=tmpfs:recurse=0 \
   ip=dhcp \
   cgroup_enable=cpuset cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 \
@@ -81,7 +81,7 @@ chain ${root-url}/vmlinuz \
   initrd=initrd.img \
   systemd.setenv=K3S_CONTROL_PLANE_HOSTNAME=k3s-control-plane \
   systemd.setenv=K3S_TOKEN=some-shared-secret \
-  root=${root-url}/minimal.tar.xz,${root-url}/kernel-modules.tar.xz,${root-url}/k3s-agent.tar.xz \
+  root=${root-url}/jammy-minimal-cloudimg-arm64-root.tar.xz,${root-url}/kernel-modules.tar.xz,${root-url}/k3s-agent.tar.xz \
   overlayroot=tmpfs:recurse=0 \
   ip=dhcp \
   cgroup_enable=cpuset cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 \
