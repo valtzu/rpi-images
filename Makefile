@@ -1,12 +1,17 @@
 WORKDIR := /tmp/rpi-images
 CHROOT_LAYER := $(WORKDIR)/chroot-layer
+INSTALL_K3S_VERSION := "v1.24.3+k3s1"
 
 SHELL = /bin/bash
 
 .SECONDEXPANSION:
 .PRECIOUS: upstream/%-server-cloudimg-arm64-root.tar.xz $(WORKDIR)/%-minimal-cloudimg-arm64 $(WORKDIR)/%-server-cloudimg-arm64-root $(WORKDIR)/%-kernel-cloudimg-arm64 $(WORKDIR)/%-k3s-server $(WORKDIR)/%-k3s-agent
 
-all: dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/k3s-arm64-1.24.tar.xz
+all: dist/jammy/minimal.tar.xz dist/jammy/vmlinuz dist/jammy/kernel-modules.tar.xz dist/jammy/initrd.img dist/jammy/config dist/jammy/iscsi.tar.xz dist/jammy/k3s-server.tar.xz dist/jammy/k3s-agent.tar.xz k3s/usr/local/bin/k3s
+
+k3s/usr/local/bin/k3s:
+	wget https://github.com/k3s-io/k3s/releases/download/$(INSTALL_K3S_VERSION)/k3s-arm64 -O $@
+	chmod a+x $@
 
 $(CHROOT_LAYER):
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
@@ -29,15 +34,18 @@ $(WORKDIR)/%-kernel-cloudimg-arm64: $(WORKDIR)/$$*-server-cloudimg-arm64-root $(
 	sudo rm -rf $@
 	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@ $@-merged bash -l < ./ubuntu-kernel.sh
 
-$(WORKDIR)/%-k3s-server: $(WORKDIR)/$$*-minimal-cloudimg-arm64 $(CHROOT_LAYER)
+$(WORKDIR)/%-k3s-server: $(WORKDIR)/$$*-minimal-cloudimg-arm64 $(CHROOT_LAYER) k3s/usr/local/bin/k3s
 	sudo rm -rf $@
-	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@ $@-merged bash -l < ./k3s-server.sh
+	sudo cp -a ./k3s $@
 	sudo mkdir -p $@/var/lib/rancher/k3s/server
-	sudo cp -a ./k3s/server/manifests $@/var/lib/rancher/k3s/server/
+	sudo cp -a ./k3s-server/* $@/
+	sudo chown 0:0 -R $@
 
-$(WORKDIR)/%-k3s-agent: $(WORKDIR)/$$*-minimal-cloudimg-arm64 $(CHROOT_LAYER)
+$(WORKDIR)/%-k3s-agent: $(WORKDIR)/$$*-minimal-cloudimg-arm64 $(CHROOT_LAYER) k3s/usr/local/bin/k3s
 	sudo rm -rf $@
-	sudo ./run-in-chroot-overlay $(CHROOT_LAYER):$< $@ $@-merged bash -l < ./k3s-agent.sh
+	sudo cp -a ./k3s $@
+	sudo cp -a ./k3s-agent/* $@/
+	sudo chown 0:0 -R $@
 
 dist/%/vmlinuz: $(WORKDIR)/$$*-kernel-cloudimg-arm64
 	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)

@@ -41,14 +41,24 @@ jobs:
           asset_path: dist/jammy/minimal.tar.xz
           asset_content_type: application/octet-stream
 
-      - name: Upload k3s-arm64-1.24.tar.xz
+      - name: Upload k3s-server.tar.xz
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_name: k3s-arm64-1.24.tar.xz
-          asset_path: dist/k3s-arm64-1.24.tar.xz
+          asset_name: k3s-server.tar.xz
+          asset_path: dist/jammy/k3s-server.tar.xz
+          asset_content_type: application/octet-stream
+
+      - name: Upload k3s-agent.tar.xz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: k3s-agent.tar.xz
+          asset_path: dist/jammy/k3s-agent.tar.xz
           asset_content_type: application/octet-stream
 
       - name: Upload kernel config
@@ -89,4 +99,14 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_name: initrd.img
           asset_path: dist/jammy/initrd.img
+          asset_content_type: application/octet-stream
+
+      - name: Upload iscsi.tar.xz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: iscsi.tar.xz
+          asset_path: dist/jammy/iscsi.tar.xz
           asset_content_type: application/octet-stream

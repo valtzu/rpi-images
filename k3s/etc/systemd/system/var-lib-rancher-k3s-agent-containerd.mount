@@ -1,0 +1,10 @@
+[Unit]
+Description=Persistent containerd storage
+After=mnt-instanceStorage.mount
+Requires=mnt-instanceStorage.mount
+
+[Mount]
+What=/mnt/instanceStorage/containerd
+Where=/var/lib/rancher/k3s/agent/containerd
+Type=none
+Options=bind

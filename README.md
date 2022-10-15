@@ -24,6 +24,8 @@ vagrant ssh -c 'make -C /vagrant'
 
 ### iPXE boot
 
+For every example, start with this:
+
 ```
 #!ipxe
 dhcp
@@ -35,15 +37,58 @@ ntp pool.ntp.org
 set root-url http://github.com/valtzu/rpi-images/releases/latest/download
 
 set cloud-init https://raw.githubusercontent.com/valtzu/pipxe/master/example/cloud-init/
-
 initrd ${root-url}/initrd.img
-chain ${root-url}/vmlinuz initrd=initrd.img xt_SYSRQ.password=unsafe root=${root-url}/jammy-minimal-cloudimg-arm64.tar.xz ip=dhcp overlayroot=tmpfs:recurse=0 network-config=disabled ds=nocloud-net;s=${cloud-init}
 ```
 
-### Reboot via UDP
-
-```shell
-./reboot <ip> <password>
-# f.e.
-./reboot 192.168.2.2 unsafe
+#### Ubuntu 22.04
 ```
+# ^-- include the generic stuff first
+chain ${root-url}/vmlinuz \
+  initrd=initrd.img \
+  root=${root-url}/minimal.tar.xz \
+  ip=dhcp \
+  overlayroot=tmpfs:recurse=0 \
+  network-config=disabled \
+  ds=nocloud-net;s=${cloud-init}
+```
+
+#### K3S control plane node
+```
+# ^-- include the generic stuff first
+chain ${root-url}/vmlinuz \
+  initrd=initrd.img \
+  systemd.setenv=K3S_CONTROL_PLANE_HOSTNAME=k3s-control-plane \
+  systemd.setenv=K3S_DATASTORE_ENDPOINT="mysql://k3s:secret@tcp(some-external-db:3306)/k3s" \
+  systemd.setenv=K3S_TOKEN=some-shared-secret \
+  root=${root-url}/minimal.tar.xz,${root-url}/kernel-modules.tar.xz,${root-url}/k3s-server.tar.xz \
+  overlayroot=tmpfs:recurse=0 \
+  ip=dhcp \
+  cgroup_enable=cpuset cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 \
+  network-config=disabled \
+  ds=nocloud-net;s=${cloud-init}
+```
+
+`k3s-control-plane` must resolve to an ip outside dhcp range. Kube-vip will use that to create a floating ip for the control plane.
+
+`$K3S_DATASTORE_ENDPOINT` defines persistent kv-storage for control plane, I used external mysql here.
+
+`$K3S_TOKEN` is a token for adding more nodes to the cluster.
+
+#### K3S worker node
+```
+# ^-- include the generic stuff first
+chain ${root-url}/vmlinuz \
+  initrd=initrd.img \
+  systemd.setenv=K3S_CONTROL_PLANE_HOSTNAME=k3s-control-plane \
+  systemd.setenv=K3S_TOKEN=some-shared-secret \
+  root=${root-url}/minimal.tar.xz,${root-url}/kernel-modules.tar.xz,${root-url}/k3s-agent.tar.xz \
+  overlayroot=tmpfs:recurse=0 \
+  ip=dhcp \
+  cgroup_enable=cpuset cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1 \
+  network-config=disabled \
+  ds=nocloud-net;s=${cloud-init}
+```
+
+`$K3S_CONTROL_PLANE_HOSTNAME` should resolve to the control plane.
+
+`$K3S_TOKEN` is the token you defined for the control plane.

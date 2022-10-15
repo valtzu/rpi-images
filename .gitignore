@@ -1,3 +1,6 @@
 upstream
 dist
 .vagrant
+k3s/usr/local/bin/k3s
+*VBox*.log
+/local/

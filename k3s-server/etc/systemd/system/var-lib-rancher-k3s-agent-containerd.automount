@@ -1,0 +1,9 @@
+[Unit]
+Description=Persistent containerd storage automount
+Before=k3s.service
+
+[Automount]
+Where=/var/lib/rancher/k3s/agent/containerd
+
+[Install]
+WantedBy=multi-user.target

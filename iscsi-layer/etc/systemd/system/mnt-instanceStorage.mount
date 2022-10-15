@@ -1,0 +1,15 @@
+[Unit]
+Description=iSCSI instance storage
+Requires=dev-disk-by\x2dlabel-instance\x2dstorage.device
+Requires=systemd-fsck@dev-disk-by\x2dlabel-instance\x2dstorage.service
+After=dev-disk-by\x2dlabel-instance\x2dstorage.device
+After=systemd-fsck@dev-disk-by\x2dlabel-instance\x2dstorage.service
+After=blockdev@dev-disk-by\x2dlabel-instance\x2dstorage.target
+
+[Mount]
+What=/dev/disk/by-label/instance-storage
+Where=/mnt/instanceStorage
+Options=_netdev
+
+[Install]
+WantedBy=remote-fs.target
