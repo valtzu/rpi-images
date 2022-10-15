@@ -1,6 +1,6 @@
 WORKDIR := /tmp/rpi-images
 CHROOT_LAYER := $(WORKDIR)/chroot-layer
-INSTALL_K3S_VERSION := "v1.24.3+k3s1"
+INSTALL_K3S_VERSION := v1.24.3+k3s1
 
 SHELL = /bin/bash
 
@@ -90,6 +90,7 @@ dist/%/k3s-agent.tar.xz: $(WORKDIR)/$$*-k3s-agent
 	chmod 0644 $@
 
 dist/%/iscsi.tar.xz: iscsi-layer
+	[ -d $$(dirname $@) ] || mkdir -p $$(dirname $@)
 	sudo tar -cJf $@ -C $< .
 	sudo chown --reference=$$(dirname $@) $@
 	chmod 0644 $@
