@@ -1,0 +1,9 @@
+[Unit]
+Description=Persistent node settings automount
+Before=k3s-agent.service
+
+[Automount]
+Where=/etc/rancher/node
+
+[Install]
+WantedBy=multi-user.target
