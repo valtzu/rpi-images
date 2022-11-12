@@ -320,6 +320,9 @@ subjects:
 apiVersion: v1
 data:
   allow-snippet-annotations: "true"
+  use-forwarded-headers: 'true'
+  compute-full-forwarded-for: 'true'
+  proxy-real-ip-cidr: '10.2.0.1/32' # your load balancer ip
 kind: ConfigMap
 metadata:
   labels:
@@ -402,7 +405,8 @@ metadata:
   namespace: ingress-nginx
 spec:
   minReadySeconds: 0
-  revisionHistoryLimit: 10
+  revisionHistoryLimit: 2
+  replicas: 2
   selector:
     matchLabels:
       app.kubernetes.io/component: controller
