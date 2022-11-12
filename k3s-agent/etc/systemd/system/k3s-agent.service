@@ -28,4 +28,5 @@ ExecStartPre=-/sbin/modprobe br_netfilter
 ExecStartPre=-/sbin/modprobe overlay
 ExecStart=/usr/local/bin/k3s \
     agent \
-	--server=https://${K3S_CONTROL_PLANE_HOSTNAME}:6443
+	--server=https://${K3S_CONTROL_PLANE_HOSTNAME}:6443 \
+	--node-label node-role.kubernetes.io/worker=true
