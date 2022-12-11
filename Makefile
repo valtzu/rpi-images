@@ -1,6 +1,6 @@
 WORKDIR := /tmp/rpi-images
 CHROOT_LAYER := $(WORKDIR)/chroot-layer
-INSTALL_K3S_VERSION := v1.25.4+k3s1
+INSTALL_K3S_VERSION := v1.24.7+k3s1
 
 SHELL = /bin/bash
 
